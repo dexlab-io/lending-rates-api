@@ -1,0 +1,48 @@
+{
+  "name": "lending-rates-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npm run build",
+    "dev": "./node_modules/nodemon/bin/nodemon.js --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/server.ts",
+    "build": "tsc",
+    "start": "node build/server",
+    "test": "./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.ts",
+    "test-unit": "./node_modules/mocha/bin/mocha -r ts-node/register test/unit/*.ts",
+    "test-integration": "./node_modules/mocha/bin/mocha -r ts-node/register test/integration/*.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dexlab-io/lending-rates-api"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dexlab-io/lending-rates-api/issues"
+  },
+  "homepage": "https://github.com/dexlab-io/lending-rates-api#readme",
+  "dependencies": {
+    "dotenv": "^8.0.0",
+    "http-status-codes": "^1.3.2",
+    "koa": "^2.7.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/koa": "^2.0.48",
+    "@types/koa-bodyparser": "^4.2.2",
+    "@types/koa-router": "^7.0.40",
+    "@types/mocha": "^5.2.6",
+    "@types/sinon": "^7.0.11",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "nodemon": "^1.19.0",
+    "sinon": "^7.3.2",
+    "ts-node": "^8.1.0",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
+  }
+}

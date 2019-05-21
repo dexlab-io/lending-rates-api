@@ -1,0 +1,2 @@
+DEBUG=true
+PORT=3000
