@@ -39,16 +39,14 @@ class Collector {
     }
 
     private collectAndStoreDydx() {
-        global.console.log("Collecting and Storing Dydx data");
-        this.dydx.getRates();
+        global.console.log("");
     }
-    private collectAndStoreCompound() {
+    private async collectAndStoreCompound() {
         global.console.log("Collecting and Storing Compound data");
-        this.compound.getRates();
+        this.compound.storeRates(this.blockNumber, await this.compound.getRates());
     }
     private collectAndStoreBzx() {
-        global.console.log("Collecting and Storing Bzx data");
-        this.bzx.getRates();
+        global.console.log("");
     }
 }
 

@@ -8,11 +8,12 @@ describe("SQLite DB", () => {
         const blockNumber = 123;
         const provider = "Example";
         const rate = 12.5;
+        const token = "dai";
 
-        const store = await db.storeRate(provider, blockNumber, rate);
+        const store = await db.storeRate(provider, token, blockNumber, rate);
 
-        const storedData = await db.getRate(provider, blockNumber);
+        const storedData = await db.getRate(provider, token, blockNumber);
 
-        assert.deepEqual(storedData, {blockNumber, provider, rate});
+        assert.deepEqual(storedData, {blockNumber, provider, rate, token});
     });
 });

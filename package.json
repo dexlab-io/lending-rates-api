@@ -25,13 +25,14 @@
   },
   "homepage": "https://github.com/dexlab-io/lending-rates-api#readme",
   "dependencies": {
-    "@dydxprotocol/solo": "^0.6.1",
+    "@dydxprotocol/solo": "^0.7.0",
     "dotenv": "^8.0.0",
     "ethers": "^4.0.27",
     "http-status-codes": "^1.3.2",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
+    "lodash": "^4.17.11",
     "sqlite": "^3.0.3"
   },
   "devDependencies": {
@@ -39,6 +40,7 @@
     "@types/koa": "^2.0.48",
     "@types/koa-bodyparser": "^4.2.2",
     "@types/koa-router": "^7.0.40",
+    "@types/lodash": "^4.14.132",
     "@types/mocha": "^5.2.6",
     "@types/sinon": "^7.0.11",
     "chai": "^4.2.0",

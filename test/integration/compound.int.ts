@@ -4,6 +4,6 @@ import Compound from "../../src/managers/compound";
 describe("Compound protocol", () => {
     it("It gets the actual rates", async () => {
         const compound = new Compound();
-        assert.isNotEmpty(compound.getRates());
-    });
+        assert.isNotEmpty(await compound.getRates());
+    }).timeout(15000);
 });
