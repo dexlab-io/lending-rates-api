@@ -2,7 +2,7 @@ import Config from "../config";
 
 import { ethers } from "ethers";
 import * as fs from "fs";
-import sqlite from "../../src/managers/sqlite";
+import Rates from "./rates";
 
 export default class Bzx {
     public bzxTokenizedRegistryABI;
@@ -37,7 +37,7 @@ export default class Bzx {
     }
 
     public async storeRates(blockNumber: number, rates) {
-        const db = new sqlite();
-        const store = await db.storeAllRates("Bzx", blockNumber, rates);
+        const r = new Rates();
+        const store = await r.storeAll("Bzx", blockNumber, rates);
     }
 }

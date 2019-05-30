@@ -3,7 +3,7 @@ import Config from "../config";
 import { ethers } from "ethers";
 import * as fs from "fs";
 import { findIndex, isUndefined } from "lodash";
-import sqlite from "../../src/managers/sqlite";
+import Rates from "./rates";
 
 export default class Compound {
     public cERC20ABI;
@@ -83,8 +83,8 @@ export default class Compound {
     }
 
     public async storeRates(blockNumber: number, rates) {
-        const db = new sqlite();
-        const store = await db.storeAllRates("Compound", blockNumber, rates);
+        const r = new Rates();
+        const store = await r.storeAll("Compound", blockNumber, rates);
     }
 
     private getTokenIndex(tokenName: string): number {
