@@ -1,3 +1,5 @@
+import Config from "../config";
+
 import { ethers } from "ethers";
 import * as fs from "fs";
 import { findIndex, isUndefined } from "lodash";
@@ -51,7 +53,7 @@ export default class Compound {
     ];
 
     constructor() {
-        this.cERC20ABI = JSON.parse(fs.readFileSync("./contracts/cERC20ABI.json", "utf8"));
+        this.cERC20ABI = JSON.parse(fs.readFileSync(Config.COMPOUND_CERC20ABI, "utf8"));
     }
 
     public async getRates() {

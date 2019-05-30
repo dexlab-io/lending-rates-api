@@ -1,18 +1,22 @@
+import Config from "../config";
+
 import { ethers } from "ethers";
 import * as fs from "fs";
+import sqlite from "../../src/managers/sqlite";
 
 export default class Bzx {
     public bzxTokenizedRegistryABI;
     public bzxITokenABI;
-    public contractAddress = "0xd3a04ec94b32dc4edbfc8d3be4cd44850e6df246";
+    public contractAddress;
 
     constructor() {
-        this.bzxTokenizedRegistryABI = JSON.parse(fs.readFileSync("./contracts/bzxTokenizedRegistryABI.json", "utf8"));
-        this.bzxITokenABI = JSON.parse(fs.readFileSync("./contracts/bzxITokenABI.json", "utf8"));
+        this.contractAddress = Config.BZX_CONTRACT_ADDRESS;
+        this.bzxTokenizedRegistryABI = JSON.parse(fs.readFileSync(Config.BZX_TRABI, "utf8"));
+        this.bzxITokenABI = JSON.parse(fs.readFileSync(Config.BZX_ITABI, "utf8"));
     }
 
     public async getRates() {
-        const provider = ethers.getDefaultProvider("ropsten");
+        const provider = ethers.getDefaultProvider(Config.BZX_NETWORK);
 
         const bzxContract = new ethers.Contract(this.contractAddress, this.bzxTokenizedRegistryABI, provider);
 
@@ -22,9 +26,18 @@ export default class Bzx {
         for (const token of tokens) {
             const tokenContract = new ethers.Contract(token.token, this.bzxITokenABI, provider);
             const r = await tokenContract.supplyInterestRate();
-            rates.push({name: token.symbol, apr: r});
+            let symbol = token.symbol;
+            if (symbol.length === 4 && symbol.charAt(0) === "i") {
+                symbol = symbol.substr(1);
+            }
+            rates.push({name: symbol, apr: r.toString()});
         }
 
-        global.console.log(rates);
+        return rates;
+    }
+
+    public async storeRates(blockNumber: number, rates) {
+        const db = new sqlite();
+        const store = await db.storeAllRates("Bzx", blockNumber, rates);
     }
 }
