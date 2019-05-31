@@ -9,11 +9,12 @@ describe("Rates", () => {
         const provider = "example";
         const rate = "12.5";
         const token = "dai";
+        const type = "supply";
 
-        const store = await rates.store(provider, token, blockNumber, rate);
+        const store = await rates.store(provider, token, blockNumber, type, rate);
 
         const storedData = await rates.get(provider, token, blockNumber);
 
-        assert.deepEqual(storedData, {blockNumber, provider, rate, token});
+        assert.deepEqual(storedData, {blockNumber, provider, rate, token, type});
     });
 });

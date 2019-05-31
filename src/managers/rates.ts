@@ -4,17 +4,19 @@ import Config from "../config";
 export default class Rates {
     public async storeAll(provider: string, blockNumber: number, rates) {
         for (const r of rates) {
-            this.store(provider, r.name, blockNumber, r.apr);
+            this.store(provider, r.name, blockNumber, r.type, r.apr);
         }
     }
 
-    public async store(provider: string, token: string, blockNumber: number, rate: string) {
+    public async store(provider: string, token: string, blockNumber: number, type: string, rate: string) {
         const db = await sqlite.open(Config.DBPATH);
 
-        await db.run("CREATE TABLE IF NOT EXISTS rates (provider text, token text, blockNumber integer, rate text)");
+        let sql = `CREATE TABLE IF NOT EXISTS
+                    rates (provider text, token text, blockNumber integer, type text, rate text)`;
+        await db.run(sql);
 
-        const sql = "INSERT INTO rates (provider, token, blockNumber, rate) VALUES (?,?,?,?)";
-        const params = [provider.toLowerCase(), token.toLowerCase(), blockNumber, rate];
+        sql = "INSERT INTO rates (provider, token, blockNumber, type, rate) VALUES (?,?,?,?,?)";
+        const params = [provider.toLowerCase(), token.toLowerCase(), blockNumber, type, rate];
         const ret = await db.run(sql, params);
 
         db.close();
@@ -35,7 +37,7 @@ export default class Rates {
     public async getLast(tokenName?: string, provider?: string) {
         const db = await sqlite.open(Config.DBPATH);
 
-        let sql = "SELECT provider, token, max(blockNumber), rate FROM rates";
+        let sql = "SELECT provider, token, max(blockNumber), type, rate FROM rates";
         if (tokenName || provider) {
             sql += " WHERE 1=1";
 
@@ -47,7 +49,7 @@ export default class Rates {
             }
         }
 
-        sql += " GROUP BY provider, token";
+        sql += " GROUP BY provider, token, type";
         const data = await db.all(sql, tokenName, provider);
 
         db.close();

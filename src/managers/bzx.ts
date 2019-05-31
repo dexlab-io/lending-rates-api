@@ -25,12 +25,21 @@ export default class Bzx {
         const rates = [];
         for (const token of tokens) {
             const tokenContract = new ethers.Contract(token.token, this.bzxITokenABI, provider);
-            const r = await tokenContract.supplyInterestRate();
             let symbol = token.symbol;
+
+            // Lending
+            let r = await tokenContract.supplyInterestRate();
             if (symbol.length === 4 && symbol.charAt(0) === "i") {
                 symbol = symbol.substr(1);
             }
-            rates.push({name: symbol, apr: r.toString()});
+            rates.push({name: symbol, apr: r.toString(), type: "supply"});
+
+            // Borrowing
+            r = await tokenContract.borrowInterestRate();
+            if (symbol.length === 4 && symbol.charAt(0) === "i") {
+                symbol = symbol.substr(1);
+            }
+            rates.push({name: symbol, apr: r.toString(), type: "borrow"});
         }
 
         return rates;
