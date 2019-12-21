@@ -6,6 +6,7 @@ import * as bodyParser from "koa-bodyparser";
 
 import ratesController from "./controllers/rates";
 import stockController from "./controllers/stock";
+import chartsController from "./controllers/charts";
 
 const PORT: number = Number(config.PORT);
 const app = new Koa();
@@ -30,6 +31,11 @@ app.use(ratesController.routes());
 app.use(ratesController.allowedMethods());
 app.use(stockController.routes());
 app.use(stockController.allowedMethods());
+
+app.use(chartsController.routes());
+app.use(chartsController.allowedMethods());
+
+
 
 
 app.on("error", global.console.error);
