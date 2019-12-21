@@ -7,6 +7,8 @@ import Dydx from "./managers/dydx";
 
 const H24: number = 86400000;
 const H1: number = 3600000;
+const M5: number = 300000;
+const S15: number = 15000;
 class Collector {
     public provider;
     public network;
@@ -16,6 +18,10 @@ class Collector {
     private compound: Compound;
     private bzx: Bzx;
     private VTI: Stock;
+    private TLT: Stock;
+    private IEI: Stock;
+    private GLD: Stock;
+    private GSG: Stock;
 
     public async setup() {
         global.console.log("Setting up data collector process...");
@@ -28,6 +34,10 @@ class Collector {
         this.bzx = new Bzx();
 
         this.VTI = new Stock('VTI');
+        this.TLT = new Stock('TLT');
+        this.IEI = new Stock('IEI');
+        this.GLD = new Stock('GLD');
+        this.GSG = new Stock('GSG');
     }
 
     public async collectAllRates() {
@@ -41,14 +51,16 @@ class Collector {
             this.collectAndStoreDydx();
             this.collectAndStoreCompound();
             this.collectAndStoreBzx();
-            this.collectAndStoreStock(this.VTI);
         }
     }
 
     public async collectDailyPriceFeed() {
-
-        global.console.log("The block number is now: ");
+        global.console.log("--- ETF recording ---");
         this.collectAndStoreStock(this.VTI);
+        this.collectAndStoreStock(this.TLT);
+        this.collectAndStoreStock(this.IEI);
+        this.collectAndStoreStock(this.GLD);
+        this.collectAndStoreStock(this.GSG);
     }
 
     private async collectAndStoreStock(stock: Stock) {
@@ -77,6 +89,7 @@ class Collector {
     const collector = new Collector();
     await collector.setup();
 
-    setInterval(() => collector.collectAllRates(), 5000);
-    setInterval(() => collector.collectDailyPriceFeed(), H1);
+    setInterval(() => collector.collectAllRates(), M5);
+    collector.collectDailyPriceFeed()
+    setInterval(() => collector.collectDailyPriceFeed(), M5);
 })();

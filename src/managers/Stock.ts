@@ -1,5 +1,6 @@
-import Prices from "./Prices";
 import axios from 'axios';
+import Prices from "./Prices";
+import Config from "../config";
 
 interface Daily {
     open: number;
@@ -9,25 +10,59 @@ interface Daily {
     volume: number;
 }
 
-interface StockApiResponse {
+interface StockApiResponseSimple {
     symbol: string;
     last_refreshed: string;
-    daily: Daily;
+    data: Daily;
+}
+
+interface HistoricalData {
+    [key: string]: Daily
+}
+interface StockApiResponseMulti  {
+    symbol: string;
+    last_refreshed: string;
+    data: HistoricalData[]
+}
+
+enum Timeframe {
+    DAILY = 'TIME_SERIES_DAILY',
+    WEEKLY = 'TIME_SERIES_WEEKLY',
+    MONTHLY = 'TIME_SERIES_MONTHLY'
+}
+
+const JsonKeys = {
+    DAILY: 'Time Series (Daily)',
+    WEEKLY: 'Weekly Time Series',
+    MONTHLY: 'Monthly Time Series',
 }
 
 export default class Stock {
     BaseUrl: string = "https://www.alphavantage.co/query?";
 
     public ticker: string;
-    private API_KEY: string = "S25O85Q00K8DOBYJ";
+    private API_KEY: string;
 
     constructor(ticker: string) {
-        this.ticker = ticker;
+        this.ticker = ticker
+        this.API_KEY = Config.ALPHA_ADVANTAGE_APIKEY;
     }
 
-    public async getRates() {
-        const res = await axios.get(`${this.BaseUrl}function=TIME_SERIES_DAILY&symbol=${this.ticker}&apikey=${this.API_KEY}`)
-        const temp = res.data['Time Series (Daily)'][ res.data['Meta Data']['3. Last Refreshed'] ];
+    public async getRates(timeframe: string = 'DAILY') {
+        const res = await axios.get(`${this.BaseUrl}function=${Timeframe[timeframe]}&symbol=${this.ticker}&apikey=${this.API_KEY}`)
+        const temp = res.data[JsonKeys[timeframe]][ res.data['Meta Data']['3. Last Refreshed'] ];
+        
+        const flat_data: HistoricalData[] = Object.entries(res.data[JsonKeys[timeframe]]).map(([key, val]) => {
+            return {
+                [key] : {
+                    open: val['1. open'],
+                    high: val['2. high'],
+                    low: val['3. low'],
+                    close: val['4. close'],
+                    volume: val['5. volume'],
+                }
+            }
+        });
 
         const daily: Daily = {
             open: temp['1. open'],
@@ -37,21 +72,28 @@ export default class Stock {
             volume: temp['5. volume'],
         }
 
-        const flat_obj: StockApiResponse = {
+        if(timeframe === 'DAILY') {
+            const flat_obj: StockApiResponseSimple = {
+                symbol: res.data['Meta Data']['2. Symbol'],
+                last_refreshed: res.data['Meta Data']['3. Last Refreshed'],
+                data: daily
+            }
+            return flat_obj;
+        }
+        
+        const flat_obj: StockApiResponseMulti = {
             symbol: res.data['Meta Data']['2. Symbol'],
             last_refreshed: res.data['Meta Data']['3. Last Refreshed'],
-            daily: daily
+            data: flat_data
         }
-
-        flat_obj.daily = daily;
         return flat_obj;
     }
 
     /**
      * This function will save the values into the database.
      */
-    public async storeRates(data: StockApiResponse) {
+    public async storeRates(data: StockApiResponseSimple) {
         const prices = new Prices();
-        const store = await prices.store('alphavantage', data.symbol, data.last_refreshed, 0, data.daily.open, data.daily.high, data.daily.low, data.daily.close, data.daily.volume);
+        const store = await prices.store('alphavantage', data.symbol, data.last_refreshed, 0, data.data.open, data.data.high, data.data.low, data.data.close, data.data.volume);
     }
 }

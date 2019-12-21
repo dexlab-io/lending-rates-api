@@ -12,7 +12,7 @@ export default class Rates {
         const db = await sqlite.open(Config.DBPATH);
 
         let sql = `CREATE TABLE IF NOT EXISTS
-                    rates (provider text, token text, blockNumber integer, type text, rate text)`;
+                    rates (id INTEGER NOT NULL PRIMARY KEY, provider text, token text, blockNumber integer, type text, rate text)`;
         await db.run(sql);
 
         sql = "INSERT INTO rates (provider, token, blockNumber, type, rate) VALUES (?,?,?,?,?)";

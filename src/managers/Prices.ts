@@ -7,7 +7,7 @@ export default class Prices {
         const db = await sqlite.open(Config.DBPATH);
 
         let sql = `CREATE TABLE IF NOT EXISTS
-                    prices (provider text, ticker text, timestamp text, price real, open real, high real, low real, close real, volume integer)`;
+                    prices (id INTEGER NOT NULL PRIMARY KEY, provider text, ticker text, timestamp text, price real, open real, high real, low real, close real, volume integer)`;
         await db.run(sql);
 
         sql = "INSERT INTO prices (provider, ticker, timestamp, price, open, high, low, close, volume) VALUES (?,?,?,?,?,?,?,?,?)";
@@ -22,7 +22,7 @@ export default class Prices {
     public async get(ticker: string) {
         const db = await sqlite.open(Config.DBPATH);
 
-        const sql = "SELECT * FROM prices WHERE ticker=(?);";
+        const sql = "SELECT * FROM prices WHERE ticker=(?) ORDER BY id DESC;";
         const data = await db.get(sql, ticker);
         db.close();
 
@@ -40,12 +40,12 @@ export default class Prices {
             }
         }
 
-        sql += " GROUP BY ticker";
+        sql += " ORDER BY id DESC LIMIT 1";
         const data = await db.all(sql, ticker);
 
         db.close();
 
-        return data;
+        return data[0];
     }
 
 }
