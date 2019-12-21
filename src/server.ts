@@ -5,6 +5,7 @@ import * as Koa from "koa";
 import * as bodyParser from "koa-bodyparser";
 
 import ratesController from "./controllers/rates";
+import stockController from "./controllers/stock";
 
 const PORT: number = Number(config.PORT);
 const app = new Koa();
@@ -27,6 +28,9 @@ app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
 
 app.use(ratesController.routes());
 app.use(ratesController.allowedMethods());
+app.use(stockController.routes());
+app.use(stockController.allowedMethods());
+
 
 app.on("error", global.console.error);
 

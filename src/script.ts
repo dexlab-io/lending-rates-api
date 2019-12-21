@@ -1,9 +1,12 @@
 import { ethers } from "ethers";
 
+import Stock from './managers/Stock';
 import Bzx from "./managers/bzx";
 import Compound from "./managers/compound";
 import Dydx from "./managers/dydx";
 
+const H24: number = 86400000;
+const H1: number = 3600000;
 class Collector {
     public provider;
     public network;
@@ -12,6 +15,7 @@ class Collector {
     private dydx: Dydx;
     private compound: Compound;
     private bzx: Bzx;
+    private VTI: Stock;
 
     public async setup() {
         global.console.log("Setting up data collector process...");
@@ -22,6 +26,8 @@ class Collector {
         this.dydx = new Dydx();
         this.compound = new Compound();
         this.bzx = new Bzx();
+
+        this.VTI = new Stock('VTI');
     }
 
     public async collectAllRates() {
@@ -35,7 +41,21 @@ class Collector {
             this.collectAndStoreDydx();
             this.collectAndStoreCompound();
             this.collectAndStoreBzx();
+            this.collectAndStoreStock(this.VTI);
         }
+    }
+
+    public async collectDailyPriceFeed() {
+
+        global.console.log("The block number is now: ");
+        this.collectAndStoreStock(this.VTI);
+    }
+
+    private async collectAndStoreStock(stock: Stock) {
+        global.console.log(`Collecting and Storing Stock: ${stock.ticker} data`);
+        const res = await stock.getRates();
+        global.console.log(res);
+        stock.storeRates(res);
     }
 
     private collectAndStoreDydx() {
@@ -58,4 +78,5 @@ class Collector {
     await collector.setup();
 
     setInterval(() => collector.collectAllRates(), 5000);
+    setInterval(() => collector.collectDailyPriceFeed(), H1);
 })();
