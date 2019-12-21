@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import * as colors from 'colors/safe';
 
 import Stock from './managers/Stock';
 import Bzx from "./managers/bzx";
@@ -9,6 +10,13 @@ const H24: number = 86400000;
 const H1: number = 3600000;
 const M5: number = 300000;
 const S15: number = 15000;
+
+
+const rainbow = (t) => global.console.log(colors.rainbow(t));
+const title = (t) => global.console.log(colors.red(colors.underline(t)));
+const subtitle = (t) => global.console.log(colors.yellow(t));
+const log = (t) => global.console.log(colors.magenta(t));
+
 class Collector {
     public provider;
     public network;
@@ -24,7 +32,7 @@ class Collector {
     private GSG: Stock;
 
     public async setup() {
-        global.console.log("Setting up data collector process...");
+        rainbow("Setting up data collector process...");
 
         this.provider = ethers.getDefaultProvider();
         this.network = await this.provider.getNetwork();
@@ -43,7 +51,7 @@ class Collector {
     public async collectAllRates() {
         const blockNumber = await this.provider.getBlockNumber();
 
-        global.console.log("The block number is now: " + blockNumber);
+        subtitle("The block number is now: " + blockNumber);
 
         if (this.blockNumber !== blockNumber) {
             this.blockNumber = blockNumber;
@@ -55,7 +63,7 @@ class Collector {
     }
 
     public async collectDailyPriceFeed() {
-        global.console.log("--- ETF recording ---");
+        title("--- ETF recording ---");
         await this.collectAndStoreStock(this.VTI);
         await this.collectAndStoreStock(this.TLT);
         await this.collectAndStoreStock(this.IEI);
@@ -64,10 +72,10 @@ class Collector {
     }
 
     private async collectAndStoreStock(stock: Stock) {
-        global.console.log(`Collecting and Storing Stock: ${stock.ticker} data`);
+        subtitle(`Collecting and Storing Stock: ${stock.ticker} data`);
         const res = await stock.getRatesDay();
-        global.console.log(`Last checked: ${res.last_refreshed}`);
-        global.console.table(res.data);
+        log(`Last checked: ${res.last_refreshed}`);
+        global.console.table(res);
         await stock.storeRates(res);
     }
 
@@ -76,12 +84,12 @@ class Collector {
     }
 
     private async collectAndStoreCompound() {
-        global.console.log("Collecting and Storing Compound data");
+        subtitle("Collecting and Storing Compound data");
         this.compound.storeRates(this.blockNumber, await this.compound.getRates());
     }
 
     private async collectAndStoreBzx() {
-        global.console.log("Collecting and Storing Bzx data");
+        subtitle("Collecting and Storing Bzx data");
         this.bzx.storeRates(this.blockNumber, await this.bzx.getRates());
     }
 }
@@ -91,6 +99,7 @@ class Collector {
     await collector.setup();
 
     setInterval(() => collector.collectAllRates(), M5);
+    collector.collectAllRates()
     collector.collectDailyPriceFeed()
     setInterval(() => collector.collectDailyPriceFeed(), M5);
 })();
