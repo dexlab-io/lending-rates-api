@@ -56,18 +56,19 @@ class Collector {
 
     public async collectDailyPriceFeed() {
         global.console.log("--- ETF recording ---");
-        this.collectAndStoreStock(this.VTI);
-        this.collectAndStoreStock(this.TLT);
-        this.collectAndStoreStock(this.IEI);
-        this.collectAndStoreStock(this.GLD);
-        this.collectAndStoreStock(this.GSG);
+        await this.collectAndStoreStock(this.VTI);
+        await this.collectAndStoreStock(this.TLT);
+        await this.collectAndStoreStock(this.IEI);
+        await this.collectAndStoreStock(this.GLD);
+        await this.collectAndStoreStock(this.GSG);
     }
 
     private async collectAndStoreStock(stock: Stock) {
         global.console.log(`Collecting and Storing Stock: ${stock.ticker} data`);
-        const res = await stock.getRates();
-        global.console.log(res);
-        stock.storeRates(res);
+        const res = await stock.getRatesDay();
+        global.console.log(`Last checked: ${res.last_refreshed}`);
+        global.console.table(res.data);
+        await stock.storeRates(res);
     }
 
     private collectAndStoreDydx() {

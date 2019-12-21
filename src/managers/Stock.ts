@@ -2,7 +2,7 @@ import axios from 'axios';
 import Prices from "./Prices";
 import Config from "../config";
 
-interface Daily {
+interface Candle {
     open: number;
     high: number;
     low: number;
@@ -13,17 +13,19 @@ interface Daily {
 interface StockApiResponseSimple {
     symbol: string;
     last_refreshed: string;
-    data: Daily;
+    data: Candle;
 }
 
 interface HistoricalData {
-    [key: string]: Daily
+    [key: string]: Candle
 }
 interface StockApiResponseMulti  {
     symbol: string;
     last_refreshed: string;
     data: HistoricalData[]
 }
+
+type GetRateReturn = StockApiResponseSimple | StockApiResponseMulti;
 
 enum Timeframe {
     DAILY = 'TIME_SERIES_DAILY',
@@ -38,6 +40,9 @@ const JsonKeys = {
 }
 
 export default class Stock {
+    /**
+     * Docs: https://www.alphavantage.co/documentation/
+     */
     BaseUrl: string = "https://www.alphavantage.co/query?";
 
     public ticker: string;
@@ -48,9 +53,8 @@ export default class Stock {
         this.API_KEY = Config.ALPHA_ADVANTAGE_APIKEY;
     }
 
-    public async getRates(timeframe: string = 'DAILY') {
+    public async getRates(timeframe: string = 'DAILY'): Promise<GetRateReturn> {
         const res = await axios.get(`${this.BaseUrl}function=${Timeframe[timeframe]}&symbol=${this.ticker}&apikey=${this.API_KEY}`)
-        const temp = res.data[JsonKeys[timeframe]][ res.data['Meta Data']['3. Last Refreshed'] ];
         
         const flat_data: HistoricalData[] = Object.entries(res.data[JsonKeys[timeframe]]).map(([key, val]) => {
             return {
@@ -63,23 +67,6 @@ export default class Stock {
                 }
             }
         });
-
-        const daily: Daily = {
-            open: temp['1. open'],
-            high: temp['2. high'],
-            low: temp['3. low'],
-            close: temp['4. close'],
-            volume: temp['5. volume'],
-        }
-
-        if(timeframe === 'DAILY') {
-            const flat_obj: StockApiResponseSimple = {
-                symbol: res.data['Meta Data']['2. Symbol'],
-                last_refreshed: res.data['Meta Data']['3. Last Refreshed'],
-                data: daily
-            }
-            return flat_obj;
-        }
         
         const flat_obj: StockApiResponseMulti = {
             symbol: res.data['Meta Data']['2. Symbol'],
@@ -88,6 +75,19 @@ export default class Stock {
         }
         return flat_obj;
     }
+
+    public async getRatesDay() {
+        const res = await this.getRates();
+        const last_refreshed = Object.entries(res.data[0])[0][0];
+        
+        const flat_obj: StockApiResponseSimple = {
+            ...res,
+            data: res.data[0][last_refreshed]
+        };
+
+        return flat_obj;
+    }
+
 
     /**
      * This function will save the values into the database.
