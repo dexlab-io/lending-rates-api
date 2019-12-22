@@ -23,6 +23,7 @@ const toChart = (data, ticker) => {
     });
     return flat;
 }
+
 const routerOpts: Router.IRouterOptions = {
     prefix: "/stock",
 };

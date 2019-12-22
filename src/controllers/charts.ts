@@ -19,4 +19,11 @@ router.get("/compound", async (ctx: Koa.Context) => {
     ctx.body = await chart.getCompoundData();
 });
 
+router.get("/etf", async (ctx: Koa.Context) => {
+    const chart = new Charts();
+    ctx.body = await chart.getEtfData();
+});
+
+
+
 export default router;

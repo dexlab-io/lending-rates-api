@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as moment from 'moment';
 import * as _ from "lodash";
-import Config from "../config";
+import Stock from './Stock';
 
 const groupByMonth = (data) => _.groupBy(data, function (o) {
     return moment(o.date).startOf('month').format();
@@ -18,6 +18,44 @@ const getAvgByMonth = (data) => {
         })
     });
     return months;
+}
+
+const groupEtfByMonth = (data) => {
+    const months = []
+    _.forEach(data, function(value, key) {
+        const t = {
+            month: moment(key).format('MMM'),
+        }
+
+        value.forEach( v => {
+            t[v.ticker] = v.price;
+        });
+        
+        if(moment(key).isAfter('2018-12-31') && moment(key).isBefore('2020-01-01')) {
+            months.push(t);
+        }
+    });
+    return months;
+}
+
+const EtfToChart = (data, ticker) => {
+    const flat = [];
+    //@ts-ignore
+    data.forEach(val => {
+        try {
+            const complex = Object.entries(val);
+            const key = complex[0][0];
+            let t = key.split('-')
+            if( parseInt(t[0]) <= 2019 && parseInt(t[2]) < 4){
+                return;
+            }
+            const formatted_date = `${t[1]}`;
+            const obj = complex[0][1];
+            //@ts-ignore
+            flat.push( {ticker, date: key, date_full: formatted_date, price: obj.close} )
+        } catch (e) {}
+    });
+    return flat;
 }
 
 export default class Charts {
@@ -39,17 +77,24 @@ export default class Charts {
         const months = getAvgByMonth(groups);
 
         return months;
+    }
+
+    async getEtfData() {
+        const VTI = new Stock('VTI');
+        const TLT = new Stock('TLT');
+        const IEI = new Stock('IEI');
+        const GLD = new Stock('GLD');
+        const GSG = new Stock('GSG');
         
+        const values = await Promise.all([
+            VTI.getRates('MONTHLY'), 
+            TLT.getRates('MONTHLY'), 
+            IEI.getRates('MONTHLY'), 
+            GLD.getRates('MONTHLY'), 
+            GSG.getRates('MONTHLY')]
+        );
 
-        // const VTI = new Stock('VTI');
-        // const TLT = new Stock('TLT');
-        // const IEI = new Stock('IEI');
-        // const GLD = new Stock('GLD');
-        // const GSG = new Stock('GSG');
-
-        // [VTI, TLT, IEI, GLD, GSG].forEach(element => {
-            
-        // });
+        return groupEtfByMonth(groupByMonth(_.flattenDeep(values.map( o => EtfToChart(o.data, o.symbol)))));
     }
 
     async main() {
