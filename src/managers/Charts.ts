@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as moment from 'moment';
 import * as _ from "lodash";
 import Stock from './Stock';
+import Crypto from './Crypto';
 
 const groupByMonth = (data) => _.groupBy(data, function (o) {
     return moment(o.date).startOf('month').format();
@@ -79,6 +80,19 @@ export default class Charts {
         return months;
     }
 
+    async getSingleAsset(ticker: string) {
+        const single = new Stock(ticker);
+        const res = await single.getRates('MONTHLY');
+        return groupEtfByMonth(EtfToChart(res.data, res.symbol));
+    }
+
+    async getSingleCryptoAsset(ticker: string) {
+        const single = new Crypto(ticker);
+        const res = await single.getRates('MONTHLY');
+        return res;
+    }
+
+    
     async getEtfData() {
         const VTI = new Stock('VTI');
         const TLT = new Stock('TLT');

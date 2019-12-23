@@ -7,6 +7,7 @@ import * as bodyParser from "koa-bodyparser";
 import ratesController from "./controllers/rates";
 import stockController from "./controllers/stock";
 import chartsController from "./controllers/charts";
+import cryptoController from "./controllers/crypto";
 
 const PORT: number = Number(config.PORT);
 const app = new Koa();
@@ -29,11 +30,15 @@ app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
 
 app.use(ratesController.routes());
 app.use(ratesController.allowedMethods());
+
 app.use(stockController.routes());
 app.use(stockController.allowedMethods());
 
 app.use(chartsController.routes());
 app.use(chartsController.allowedMethods());
+
+app.use(cryptoController.routes());
+app.use(cryptoController.allowedMethods());
 
 
 
