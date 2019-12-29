@@ -3,6 +3,7 @@ import config from "./config";
 import * as HttpStatus from "http-status-codes";
 import * as Koa from "koa";
 import * as bodyParser from "koa-bodyparser";
+import * as cors from '@koa/cors';
 
 import ratesController from "./controllers/rates";
 import stockController from "./controllers/stock";
@@ -11,6 +12,10 @@ import cryptoController from "./controllers/crypto";
 
 const PORT: number = Number(config.PORT);
 const app = new Koa();
+
+app.use(cors({
+    origin: '*'
+}));
 
 app.use(bodyParser());
 
