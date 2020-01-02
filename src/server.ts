@@ -9,6 +9,7 @@ import ratesController from "./controllers/rates";
 import stockController from "./controllers/stock";
 import chartsController from "./controllers/charts";
 import cryptoController from "./controllers/crypto";
+import portfolioController from "./controllers/portfolio";
 
 const PORT: number = Number(config.PORT);
 const app = new Koa();
@@ -35,6 +36,9 @@ app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
 
 app.use(ratesController.routes());
 app.use(ratesController.allowedMethods());
+
+app.use(portfolioController.routes());
+app.use(portfolioController.allowedMethods());
 
 app.use(stockController.routes());
 app.use(stockController.allowedMethods());

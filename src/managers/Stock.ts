@@ -1,14 +1,7 @@
 import axios from 'axios';
 import Prices from "./Prices";
 import Config from "../config";
-
-interface Candle {
-    open: number;
-    high: number;
-    low: number;
-    close: number;
-    volume: number;
-}
+import {Candle} from '../interfaces';
 
 interface StockApiResponseSimple {
     symbol: string;
