@@ -13,6 +13,7 @@ const createCandle = t => { return {
     volume: parseFloat(t.volume)
 }};
 
+const DEFAULT_CANDLE_VAL = "open";
 type AssetType = Stock | Crypto;
 
 interface AssetsConfig {
@@ -43,11 +44,13 @@ class Asset {
     }
 
     amountAtCandle(candle: Candle) {
-        return  this.aum / candle.close;
+        return  this.aum / candle[DEFAULT_CANDLE_VAL];
     }
 
-    async calcROI(since: string = '2018-12-31') {
+    async calcROI(since: string = '2019-01-31') {
         const data = await this.pullHistorical();
+
+        console.log('since', since)
         
         const filtered = [];
 
@@ -57,13 +60,16 @@ class Asset {
             let datetime = t[0][0];
             let v = t[0][1];
             
+            console.log('datetime', datetime)
             if( moment(datetime).isSame( moment(since) ) ) {
                 this.amount = this.amountAtCandle( createCandle(v) );    
             }
 
-            const usdVal = this.amount * createCandle(v).close;
+            const price = createCandle(v)[DEFAULT_CANDLE_VAL];
+            const usdVal = this.amount * price;
+            value[datetime].price = price;
             value[datetime].amountBroken = this.amount;
-            value[datetime].amountPossible = this.aum / createCandle(v).close;
+            value[datetime].amountPossible = this.aum / price;
             value[datetime].usdVal = usdVal;
             value[datetime].roi_mom = (usdVal - this.aum) / this.aum;
 
@@ -99,7 +105,7 @@ class Asset {
             return this._cache['MONTHLY'];
         }
 
-        const res = await this.asset.getRates('MONTHLY');
+        const res = await this.asset.getRates(this.asset.type === 'crypto' ? 'DAILY' : 'MONTHLY');
         this._cache['MONTHLY'] = res.data;
         return res.data;
     }
@@ -157,7 +163,8 @@ export default class Portfolio {
                 temp.assets.push({
                     ticker: singlePriceFeed.ticker,
                     usdVal: historicalData.usdVal,
-                    roi_mom: historicalData.roi_mom
+                    roi_mom: historicalData.roi_mom,
+                    price: historicalData.price
                 })
             });
 
@@ -184,13 +191,13 @@ export default class Portfolio {
         return filtered;
     }
 
-    async test() {
-        return await this.assets[0].calcROI();
+    async test(since: string = '2019-01-31') {
+        return await this.assets[0].calcROI(since);
     }
 
     
-    async sync() {
-        const values = await Promise.all( this.assets.map(o => o.calcROI() ));
+    async sync(since: string = '2019-01-31') {
+        const values = await Promise.all( this.assets.map(o => o.calcROI(since) ));
     
         this.roi = _.reduce(values, function(result, value, key) {
             return value.roi + result;
@@ -213,9 +220,11 @@ export default class Portfolio {
             roi: this.roi,
             roi_percentage: this.roi_percentage,
             MoM: this.MoM,
+            //_ass: this.assets,
             assets: this.assetsConfig.map( o => { return {
                 ratio: o.ratio,
-                ticker: o.asset.ticker
+                ticker: o.asset.ticker,
+                initial_allocation: (this.capitalStart * o.ratio),
             }})
         }
     }

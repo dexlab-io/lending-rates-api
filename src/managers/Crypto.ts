@@ -47,6 +47,7 @@ export default class Crypto {
      */
     BaseUrl: string = "https://min-api.cryptocompare.com/data/v2/histoday?";
 
+    public type: string = 'crypto';
     public ticker: string;
     private API_KEY: string;
 
@@ -58,11 +59,11 @@ export default class Crypto {
     //public async getRates(timeframe: string = 'DAILY'): Promise<GetRateReturn> {
     public async getRates(timeframe: string = 'DAILY', since: string = '2019-01-01') {
 
+        console.log('timeframe', timeframe, Timeframe[timeframe])
         const res = await axios.get(`${this.BaseUrl}fsym=${this.ticker}&tsym=USD&aggregate=${Timeframe[timeframe]}&limit=1000&api_key=${this.API_KEY}`)
-        global.console.log(res.data.Data.Data);
         
         const filtered = _.filter(res.data.Data.Data, (v) => moment.unix(v.time).isSameOrAfter(since));
-        const flat_data: HistoricalData[] = _.map(filtered, val => {
+        const flat_data: HistoricalData[] = _.map(res.data.Data.Data, val => {
             return {
                 [moment.unix(val.time).format('YYYY-MM-DD')] : {
                     open: val.open,
@@ -77,7 +78,7 @@ export default class Crypto {
         const flat_obj: StockApiResponseMulti = {
             symbol: this.ticker,
             last_refreshed: moment.unix(res.data.TimeTo).format(),
-            data: flat_data
+            data: flat_data.reverse()
         }
         return flat_obj;
     }

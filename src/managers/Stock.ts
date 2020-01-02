@@ -38,6 +38,7 @@ export default class Stock {
      */
     BaseUrl: string = "https://www.alphavantage.co/query?";
 
+    public type: string = 'stock';
     public ticker: string;
     private API_KEY: string;
 
