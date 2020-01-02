@@ -32,7 +32,7 @@ const groupEtfByMonth = (data) => {
             t[v.ticker] = v.price;
         });
         
-        if(moment(key).isAfter('2018-12-31') && moment(key).isBefore('2020-01-01')) {
+        if(moment(key).isSameOrAfter('2019-01-01') && moment(key).isBefore('2020-01-01')) {
             months.push(t);
         }
     });

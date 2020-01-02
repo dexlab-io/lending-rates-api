@@ -61,7 +61,7 @@ export default class Crypto {
         const res = await axios.get(`${this.BaseUrl}fsym=${this.ticker}&tsym=USD&aggregate=${Timeframe[timeframe]}&limit=1000&api_key=${this.API_KEY}`)
         global.console.log(res.data.Data.Data);
         
-        const filtered = _.filter(res.data.Data.Data, (v) => moment.unix(v.time).isAfter(since));
+        const filtered = _.filter(res.data.Data.Data, (v) => moment.unix(v.time).isSameOrAfter(since));
         const flat_data: HistoricalData[] = _.map(filtered, val => {
             return {
                 [moment.unix(val.time).format('YYYY-MM-DD')] : {

@@ -14,7 +14,15 @@ router.get("/awp", async (ctx: Koa.Context) => {
         { ratio: 0.5, asset: new Stock('VTI') }, 
         { ratio: 0.5, asset: new Stock('IEI') }, 
     ]);
-    ctx.body = await awp.calculateROI();
+    ctx.body = await awp.getState();
+});
+
+router.get("/test", async (ctx: Koa.Context) => {
+    const awp = new Portfolio([
+        { ratio: 0.5, asset: new Stock('VTI') }, 
+        { ratio: 0.5, asset: new Stock('IEI') }, 
+    ]);
+    ctx.body = await awp.test();
 });
 
 export default router;
