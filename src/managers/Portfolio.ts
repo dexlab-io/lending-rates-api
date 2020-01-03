@@ -1,4 +1,3 @@
-import axios from 'axios';
 import * as moment from 'moment';
 import * as _ from "lodash";
 import Stock from './Stock';
@@ -48,10 +47,7 @@ class Asset {
     }
 
     async calcROI(since: string = '2019-01-31') {
-        const data = await this.pullHistorical();
-
-        console.log('since', since)
-        
+        const data = await this.pullHistorical();        
         const filtered = [];
 
         // @ts-ignore
@@ -60,7 +56,6 @@ class Asset {
             let datetime = t[0][0];
             let v = t[0][1];
             
-            console.log('datetime', datetime)
             if( moment(datetime).isSame( moment(since) ) ) {
                 this.amount = this.amountAtCandle( createCandle(v) );    
             }
@@ -75,7 +70,7 @@ class Asset {
 
             if( moment(datetime).isSameOrAfter( moment(since) ) ) {
                 filtered.push(value);
-            } 
+            }
         });
 
         this._cache['MONTHLY'] = data;

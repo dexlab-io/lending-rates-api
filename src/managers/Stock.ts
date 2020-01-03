@@ -54,13 +54,7 @@ export default class Stock {
         const dbres = await AssetModel.findOne({ symbol: this.ticker });
         if( dbres ) {
             const now = moment().startOf('day').utcOffset('00:00');
-            console.log('last_refreshed', moment(dbres.last_refreshed).format());
-            console.log('now', now.format());
-    
-            
-            
             if( moment( dbres.last_refreshed ).isSameOrAfter( now ) ) {
-                console.log('cached data');
                 return dbres;
             }
         }

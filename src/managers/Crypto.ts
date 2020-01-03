@@ -3,6 +3,7 @@ import * as _ from "lodash";
 import * as moment from 'moment';
 import Prices from "./Prices";
 import Config from "../config";
+import {AssetModel} from '../models/Asset';
 
 interface Candle {
     open: number;
@@ -59,10 +60,16 @@ export default class Crypto {
     //public async getRates(timeframe: string = 'DAILY'): Promise<GetRateReturn> {
     public async getRates(timeframe: string = 'DAILY', since: string = '2019-01-01') {
 
-        console.log('timeframe', timeframe, Timeframe[timeframe])
+        const dbres = await AssetModel.findOne({ symbol: this.ticker });
+        if( dbres ) {
+            const now = moment().startOf('day').utcOffset('00:00');
+            if( moment( dbres.last_refreshed ).isSameOrAfter( now ) ) {
+                return dbres;
+            }
+        }
+
         const res = await axios.get(`${this.BaseUrl}fsym=${this.ticker}&tsym=USD&aggregate=${Timeframe[timeframe]}&limit=1000&api_key=${this.API_KEY}`)
         
-        const filtered = _.filter(res.data.Data.Data, (v) => moment.unix(v.time).isSameOrAfter(since));
         const flat_data: HistoricalData[] = _.map(res.data.Data.Data, val => {
             return {
                 [moment.unix(val.time).format('YYYY-MM-DD')] : {
@@ -77,9 +84,11 @@ export default class Crypto {
         
         const flat_obj: StockApiResponseMulti = {
             symbol: this.ticker,
-            last_refreshed: moment.unix(res.data.TimeTo).format(),
+            last_refreshed: (res.data.TimeTo ? moment.unix(res.data.TimeTo).format() : moment().startOf('day').utcOffset('00:00').format() ),
             data: flat_data.reverse()
         }
+
+        await AssetModel.findOneOrCreate({ symbol: flat_obj.symbol }, flat_obj);
         return flat_obj;
     }
 
