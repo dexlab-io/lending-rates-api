@@ -166,7 +166,6 @@ export default class Portfolio {
             filtered.push(temp)
         });
 
-
         _.forEach(filtered, (o, k) => {
             o.usdValue = _.reduce(o.assets, function(result, value, key) {
                 return value.usdVal + result;
@@ -178,8 +177,7 @@ export default class Portfolio {
                 o.roi_since_last_month = (o.usdValue - this.capitalStart) / this.capitalStart;
             } else {
                 o.roi_since_last_month = (o.usdValue - filtered[k-1].usdValue) / filtered[k-1].usdValue;
-            }
-            
+            } 
         });
 
         this.MoM = filtered;
@@ -187,7 +185,9 @@ export default class Portfolio {
     }
 
     async test(since: string = '2019-01-31') {
-        return await this.assets[0].calcROI(since);
+        const values = await Promise.all( this.assets.map(o => o.calcROI(since) ));
+        this.calculateMoM(values);
+        return values;
     }
 
     
@@ -215,7 +215,6 @@ export default class Portfolio {
             roi: this.roi,
             roi_percentage: this.roi_percentage,
             MoM: this.MoM,
-            //_ass: this.assets,
             assets: this.assetsConfig.map( o => { return {
                 ratio: o.ratio,
                 ticker: o.asset.ticker,

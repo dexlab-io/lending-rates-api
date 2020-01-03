@@ -13,7 +13,7 @@ const getAvgByMonth = (data) => {
     _.forEach(data, function(value, key) {
         const supplyRates = value.map(obj => obj.rate_per);
         months.push({
-            month: moment(key).format('MMMM'),
+            month: moment(key).format('MMMM-YY'),
             rate: _.mean(supplyRates),
             ticker: value[0].ticker
         })
