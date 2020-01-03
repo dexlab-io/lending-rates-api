@@ -61,13 +61,18 @@ router.get("/comparison", async (ctx: Koa.Context) => {
     }});
 
     const mom = awpRes.MoM.map(o => { return {
-        awp: o.roi_percentage_since_start * 100,
+        awp: (o.roi_percentage_since_start * 100).toFixed(2),
         month: moment(o.month).format('MMMM-YY'),
         date: moment(o.month).format('YYYY-MM-DD'),
     }});
 
+    const comp = compound.map(o => { return {
+        ...o,
+        compound: (o.rate).toFixed(2),
+    }});
+
     const merged = [
-        ...mom.concat(momPlus).concat(compound).reduce((m, o) => 
+        ...mom.concat(momPlus).concat(comp).reduce((m, o) => 
             m.set(o.month, Object.assign(m.get(o.month) || {}, o)), new Map()
         ).values()
     ];
