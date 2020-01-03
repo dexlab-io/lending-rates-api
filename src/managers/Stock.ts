@@ -1,7 +1,9 @@
+import * as moment from 'moment';
 import axios from 'axios';
 import Prices from "./Prices";
 import Config from "../config";
 import {Candle} from '../interfaces';
+import {AssetModel} from '../models/Asset';
 
 interface StockApiResponseSimple {
     symbol: string;
@@ -48,6 +50,24 @@ export default class Stock {
     }
 
     public async getRates(timeframe: string = 'DAILY'): Promise<GetRateReturn> {
+
+        const dbres = await AssetModel.findOne({ symbol: this.ticker });
+        if( dbres ) {
+            const now = moment().startOf('day').utcOffset('00:00');
+            console.log('last_refreshed', moment(dbres.last_refreshed).format());
+            console.log('now', now.format());
+    
+            
+            
+            if( moment( dbres.last_refreshed ).isSameOrAfter( now ) ) {
+                console.log('cached data');
+                return dbres;
+            }
+        }
+        
+
+        console.log('Fetching new data...');
+
         const res = await axios.get(`${this.BaseUrl}function=${Timeframe[timeframe]}&symbol=${this.ticker}&apikey=${this.API_KEY}`)
         
         const flat_data: HistoricalData[] = Object.entries(res.data[JsonKeys[timeframe]]).map(([key, val]) => {
@@ -64,9 +84,12 @@ export default class Stock {
         
         const flat_obj: StockApiResponseMulti = {
             symbol: res.data['Meta Data']['2. Symbol'],
-            last_refreshed: res.data['Meta Data']['3. Last Refreshed'],
+            last_refreshed: moment(res.data['Meta Data']['3. Last Refreshed']).utcOffset('00:00').format(),
             data: flat_data
         }
+
+        await AssetModel.findOneOrCreate({ symbol: flat_obj.symbol }, flat_obj);
+        console.log('saved on db', flat_obj.last_refreshed)
         return flat_obj;
     }
 

@@ -5,6 +5,7 @@ import * as Koa from "koa";
 import * as bodyParser from "koa-bodyparser";
 import * as cors from '@koa/cors';
 
+import DB from './db';
 import ratesController from "./controllers/rates";
 import stockController from "./controllers/stock";
 import chartsController from "./controllers/charts";
@@ -54,6 +55,9 @@ app.use(cryptoController.allowedMethods());
 
 app.on("error", global.console.error);
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+    
     global.console.log("Server listening on port", PORT);
+    await DB();
+    global.console.log("DB connected");
 });
