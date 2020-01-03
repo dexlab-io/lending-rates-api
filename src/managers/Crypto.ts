@@ -88,7 +88,12 @@ export default class Crypto {
             data: flat_data.reverse()
         }
 
-        await AssetModel.findOneOrCreate({ symbol: flat_obj.symbol }, flat_obj);
+        if( dbres ) {
+            await AssetModel.findOneAndUpdate({ symbol: flat_obj.symbol }, flat_obj);
+        } else {
+            await AssetModel.findOneOrCreate({ symbol: flat_obj.symbol }, flat_obj);
+        }
+
         return flat_obj;
     }
 
