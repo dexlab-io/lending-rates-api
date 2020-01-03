@@ -60,7 +60,7 @@ export default class Stock {
         }
         
 
-        console.log('Fetching new data...');
+        console.log('Fetching new data...', this.ticker);
 
         const res = await axios.get(`${this.BaseUrl}function=${Timeframe[timeframe]}&symbol=${this.ticker}&apikey=${this.API_KEY}`)
         
@@ -82,7 +82,12 @@ export default class Stock {
             data: flat_data
         }
 
-        await AssetModel.findOneOrCreate({ symbol: flat_obj.symbol }, flat_obj);
+        if( dbres ) {
+            await AssetModel.findOneAndUpdate({ symbol: flat_obj.symbol }, flat_obj);
+        } else {
+            await AssetModel.findOneOrCreate({ symbol: flat_obj.symbol }, flat_obj);
+        }
+
         console.log('saved on db', flat_obj.last_refreshed)
         return flat_obj;
     }

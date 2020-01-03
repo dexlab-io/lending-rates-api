@@ -55,7 +55,7 @@ router.get("/comparison", async (ctx: Koa.Context) => {
     const awpPlusPlusRes = await awpPlusPlus.getState();
     
     const momPlus = awpPlusPlusRes.MoM.map(o => { return {
-        awpPlus: o.roi_percentage_since_start * 100,
+        awpPlus: (o.roi_percentage_since_start * 100).toFixed(2),
         month: moment(o.month).format('MMMM-YY'),
         date: moment(o.month).format('YYYY-MM-DD'),
     }});
