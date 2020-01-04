@@ -53,7 +53,7 @@ export default class Stock {
 
         const dbres = await AssetModel.findOne({ symbol: this.ticker });
 
-        console.log('-----' + this.ticker + '---------')
+        console.log('-----' + this.ticker + '---------', dbres.data.length)
         if( dbres && dbres.data.length > 0 ) {
             const now = moment().startOf('day').utcOffset('00:00');
             console.log('now', now.format())
@@ -68,6 +68,7 @@ export default class Stock {
         console.log('Fetching new data...', this.ticker);
 
         const res = await axios.get(`${this.BaseUrl}function=${Timeframe[timeframe]}&symbol=${this.ticker}&apikey=${this.API_KEY}`)
+        console.log(`${this.BaseUrl}function=${Timeframe[timeframe]}&symbol=${this.ticker}&apikey=${this.API_KEY}`)
         
         const flat_data: HistoricalData[] = Object.entries(res.data[JsonKeys[timeframe]]).map(([key, val]) => {
             return {

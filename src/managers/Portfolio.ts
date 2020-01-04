@@ -109,10 +109,6 @@ class Asset {
     }
 
     async pullHistorical() {
-        if(this._cache['MONTHLY']) {
-            return this._cache['MONTHLY'];
-        }
-
         const res = await this.asset.getRates(this.asset.type === 'crypto' ? 'DAILY' : 'MONTHLY');
         this._cache['MONTHLY'] = res.data;
         return res.data;
