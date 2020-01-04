@@ -56,8 +56,8 @@ export default class Stock {
         console.log('-----' + this.ticker + '---------')
         if( dbres && dbres.data.length > 0 ) {
             const now = moment().startOf('day').utcOffset('00:00');
-            // console.log('now', now.format())
-            // console.log('other', moment( dbres.last_refreshed ).format())
+            console.log('now', now.format())
+            console.log('other', moment( dbres.last_refreshed ).format())
             if( moment( dbres.last_refreshed ).isSameOrAfter( now ) ) {
                 console.log('cached')
                 return dbres;
