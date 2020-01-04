@@ -53,8 +53,8 @@ export default class Stock {
 
         const dbres = await AssetModel.findOne({ symbol: this.ticker });
 
-        console.log('-----' + this.ticker + '---------', dbres.data.length)
-        if( dbres && dbres.data.length > 0 ) {
+        console.log('-----' + this.ticker + '---------')
+        if( dbres && dbres.data && dbres.data.length > 0 ) {
             const now = moment().startOf('day').utcOffset('00:00');
             console.log('now', now.format())
             console.log('other', moment( dbres.last_refreshed ).format())

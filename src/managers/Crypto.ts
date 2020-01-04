@@ -62,7 +62,7 @@ export default class Crypto {
 
         const dbres = await AssetModel.findOne({ symbol: this.ticker });
         console.log('-----' + this.ticker + '---------')
-        if( dbres && dbres.data.length > 0 ) {
+        if( dbres && dbres.data && dbres.data.length > 0 ) {
             const now = moment().startOf('day').utcOffset('00:00');
             if( moment( dbres.last_refreshed ).isSameOrAfter( now ) ) {
                 console.log('cached')

@@ -67,7 +67,7 @@ router.get("/test", async (ctx: Koa.Context) => {
 
 router.get("/test/:type/:ticker", async (ctx: Koa.Context) => {
     const awp = new Portfolio([
-        { ratio: 1, asset: ctx.params.type === 'crypto' ? new Crypto(ctx.params.type) :  new Stock(ctx.params.type) }, 
+        { ratio: 1, asset: ctx.params.type === 'crypto' ? new Crypto(ctx.params.type) :  new Stock(ctx.params.ticker) }, 
     ]);
     ctx.body = await awp.test();
 });
