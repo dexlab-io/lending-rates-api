@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const comparisonSchema = new mongoose.Schema({
-    "date": {
+    "until": {
       "type": "String"
     },
     "data": {

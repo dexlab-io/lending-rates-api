@@ -82,13 +82,14 @@ router.get("/generate/:date", async (ctx: Koa.Context) => {
         return moment(m.date).isSameOrAfter( moment(m.date).set('date', 29) )
     });
 
-    await ComparisonModel.findOneOrCreate({ date: ctx.params.date }, onlyMerged);
+    await ComparisonModel.findOneOrCreate({ until: ctx.params.date }, {until: ctx.params.date, data: onlyMerged});
     ctx.body = onlyMerged;
 });
 
 router.get("/comparison/:date", async (ctx: Koa.Context) => {
-    const res = await ComparisonModel.findOne({date: ctx.params.date});
-    ctx.body = res;
+    const res = await ComparisonModel.findOne({until: ctx.params.date});
+    console.log('res', res)
+    ctx.body = res.data;
 })
 
 router.get("/comparison", async (ctx: Koa.Context) => {
