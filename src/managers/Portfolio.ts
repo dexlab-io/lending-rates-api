@@ -77,22 +77,35 @@ class Asset {
 
         const last = _.last(filtered);
         const first = _.head(filtered);
-        const t = Object.entries(first);
-        const t1 = Object.entries(last);
-        const k = t[0][0];
-        const k1 = t1[0][0];
-        const roi = last[k1].usdVal - first[k].usdVal;
 
-        const summary = {
-            aum: this.aum,
-            roi,
-            roi_percentage: (last[k1].usdVal - this.aum) / this.aum,
-            ticker: this.ticker,
-            data: filtered
-        };
-
-        this._cache['ROI'] = summary;
-        return summary;
+        if( first && last) {
+            const t = Object.entries(first);
+            const t1 = Object.entries(last);
+            const k = t[0][0];
+            const k1 = t1[0][0];
+            const roi = last[k1].usdVal - first[k].usdVal;
+            const summary = {
+                aum: this.aum,
+                roi,
+                roi_percentage: (last[k1].usdVal - this.aum) / this.aum,
+                ticker: this.ticker,
+                data: filtered
+            };
+    
+            this._cache['ROI'] = summary;
+            return summary;
+        } else {
+            console.log('data', data)
+            console.log('filtered', filtered)
+            console.log('this', this)
+            return {
+                aum: this.aum,
+                roi: 0,
+                roi_percentage: 0,
+                ticker: this.ticker,
+                data: filtered
+            };
+        }
     }
 
     async pullHistorical() {

@@ -52,9 +52,14 @@ export default class Stock {
     public async getRates(timeframe: string = 'DAILY'): Promise<GetRateReturn> {
 
         const dbres = await AssetModel.findOne({ symbol: this.ticker });
-        if( dbres ) {
+
+        console.log('-----' + this.ticker + '---------')
+        if( dbres && dbres.data.length > 0 ) {
             const now = moment().startOf('day').utcOffset('00:00');
+            // console.log('now', now.format())
+            // console.log('other', moment( dbres.last_refreshed ).format())
             if( moment( dbres.last_refreshed ).isSameOrAfter( now ) ) {
+                console.log('cached')
                 return dbres;
             }
         }

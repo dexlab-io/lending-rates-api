@@ -61,15 +61,17 @@ export default class Crypto {
     public async getRates(timeframe: string = 'DAILY', since: string = '2019-01-01') {
 
         const dbres = await AssetModel.findOne({ symbol: this.ticker });
-        if( dbres ) {
+        console.log('-----' + this.ticker + '---------')
+        if( dbres && dbres.data.length > 0 ) {
             const now = moment().startOf('day').utcOffset('00:00');
             if( moment( dbres.last_refreshed ).isSameOrAfter( now ) ) {
+                console.log('cached')
                 return dbres;
             }
         }
 
         const res = await axios.get(`${this.BaseUrl}fsym=${this.ticker}&tsym=USD&aggregate=${Timeframe[timeframe]}&limit=1000&api_key=${this.API_KEY}`)
-        
+        //https://min-api.cryptocompare.com/data/v2/histoday?fsym=KNC&tsym=USD&aggregate=30&limit=1000&api_key=e67c901b3344b5df02de297a561c8162b39d9cc38a9f2d61464f7670ec66bdf7
         const flat_data: HistoricalData[] = _.map(res.data.Data.Data, val => {
             return {
                 [moment.unix(val.time).format('YYYY-MM-DD')] : {

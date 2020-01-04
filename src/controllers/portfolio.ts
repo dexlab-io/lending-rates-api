@@ -60,7 +60,7 @@ router.get("/awp+++", async (ctx: Koa.Context) => {
 
 router.get("/test", async (ctx: Koa.Context) => {
     const awp = new Portfolio([
-        { ratio: 0.3, asset: new Crypto('LINK') }, 
+        { ratio: 0.3, asset: new Crypto('KNC') }, 
         { ratio: 0.5, asset: new Stock('IEI') }, 
     ]);
     ctx.body = await awp.test();
